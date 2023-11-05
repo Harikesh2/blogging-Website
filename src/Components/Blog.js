@@ -1,10 +1,30 @@
 //Blogging App using Hooks
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useReducer } from "react";
+import { db } from "./firebaseinit";
+import { collection, addDoc } from "firebase/firestore"; 
+
+
+function blogReducer(state,action){
+    switch(action.type){
+        case "ADD":
+            return [action.blogs,...state];
+        case "Remove":
+            return state.filter((blogs,index)=> index !== action.index);
+        default :
+        return [];   
+
+    }
+
+}
+
+
+
 export default function Blog(){
     // const [title, setTitle] = useState("");
     // const [content,setContent] = useState("");
     const [fromData,setFromData] = useState({title:"",content:""})
-    const [blogs,setBlogs] = useState([]);
+    // const [blogs,setBlogs] = useState([]);
+    const [blogs,dispatch] = useReducer(blogReducer,[]);
     const titleRef = useRef(null);
 
 
@@ -22,9 +42,22 @@ export default function Blog(){
     },[blogs])
     
     //Passing the synthetic event as argument to stop refreshing the page on submit
-    function handleSubmit(e){
+    async function handleSubmit(e){
         e.preventDefault();
-        setBlogs([{title:fromData.title,content:fromData.content},...blogs]);
+        // setBlogs([{title:fromData.title,content:fromData.content},...blogs]);
+        dispatch({type:"ADD",blogs:{title:fromData.title,content:fromData.content}})
+        
+        // Add a new document with a generated id.
+        const docRef = await addDoc(collection(db, "blogs"), {
+        title: fromData.title,
+        content: fromData.content,
+        CreatedOn: new Date()
+        });
+        console.log("Document written with ID: ", docRef.id);
+
+  
+
+
         // setTitle("");
         // setContent("");
         setFromData({title:"",content:""});
@@ -32,7 +65,8 @@ export default function Blog(){
         console.log(blogs);
     }
     function removeBlog(i){
-     setBlogs(blogs.filter((blogs,index)=> i!==index));
+    //  setBlogs(blogs.filter((blogs,index)=> i!==index));
+    dispatch({type:"Remove",index:i})
     }
 
     return(
