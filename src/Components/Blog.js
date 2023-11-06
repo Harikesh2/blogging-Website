@@ -1,7 +1,11 @@
+
+// THIS FILE CONTAIN THE CODE REGARDING THE USEREDUCER
+
+
 //Blogging App using Hooks
 import { useState, useRef, useEffect, useReducer } from "react";
 import { db } from "./firebaseinit";
-import { collection, addDoc } from "firebase/firestore"; 
+import { collection, addDoc, getDocs } from "firebase/firestore"; 
 
 
 function blogReducer(state,action){
@@ -31,6 +35,29 @@ export default function Blog(){
     useEffect(()=>{
         titleRef.current.focus();
     },[]);
+
+    useEffect(()=>{
+
+        async function fetchData(){
+            const snapshot = await getDocs(collection(db,"blogs"));
+            console.log(snapshot);
+
+            const blogs = snapshot.docs.map((docs)=>{
+                return{
+                    id: docs.id,
+                    ...docs.data()
+                }
+              
+            });
+            console.log(blogs);
+            setFromData(blogs);
+
+
+        }
+        
+        fetchData();
+
+    },[])
 
     useEffect(()=>{
         if(blogs.length && blogs[0].title){

@@ -1,10 +1,10 @@
-import Blog from "./Components/Blog";
+import Blogs2 from "./Components/Blogs2";
 
 
 function App() {
   return (
     <>
-      <Blog />
+    <Blogs2 />
     </>
   );
 }
